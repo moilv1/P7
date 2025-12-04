@@ -1774,8 +1774,11 @@ const recipes = [
         "ustensils":["rouleau à patisserie","fouet"]
     }
 ]
-//  Template Recettes //
 
+// Log Git Branch //
+console.log('main');
+
+//  Template Recettes //
 function RecipeTemplate(recipe) {
     const { id, image, name, servings, ingredients, time, description, appliance, ustensils } = recipe;
 
@@ -1815,9 +1818,6 @@ function RecipeTemplate(recipe) {
 
         const ulIngredients = document.createElement('ul');
         ingredients.forEach(ingredient => {
-            if (!ingredient.quantity) {
-                console.log(id);
-            }
             const li = document.createElement('li');
             li.textContent = `  ${ingredient.ingredient}`;
             ulIngredients.appendChild(li);
