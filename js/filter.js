@@ -1,9 +1,9 @@
 let previousResults = [];
 
 function filterRecipes(searchValue) {
-    const filteredRecipes = [];
     const container = document.getElementById('Recette');
     container.innerHTML = '';
+    let filteredRecipes = [];
     previousResults = filteredRecipes;
 
     for (let i = 0; i < recipes.length; i++) {
@@ -60,11 +60,12 @@ searchInput.addEventListener('input', () => {
         const container = document.getElementById('Recette');
         container.innerHTML = '';
 
-        recipes.forEach(recipe => {
+        for (let i = 0; i < recipes.length; i++) {
+            const recipe = recipes[i];
             const recipeTemplate = RecipeTemplate(recipe);
             const card = recipeTemplate.getRecipeCardDOM();
             container.appendChild(card);
-        });
+        }
 
         // Remise du compteur
         const nbrRecettesElement = document.querySelector('.nbr-recettes');
@@ -85,30 +86,84 @@ searchInput.addEventListener('input', () => {
 });
 
 function filterRecipesByTags() {
-    // toujours partir de toutes les recettes
+    // Toujours partir de toutes les recettes
     const currentResults = recipes;
 
-    const activeOptionTexts = Array.from(document.querySelectorAll('.active-option .option'))
-        .map(option => option.textContent.toLowerCase().trim());
+    // Récupérer les tags actifs en minuscules et trimés
+    const activeOptionElements = document.querySelectorAll('.active-option .option');
+    const activeOptionTexts = [];
+    for (let i = 0; i < activeOptionElements.length; i++) {
+        activeOptionTexts[activeOptionTexts.length] = activeOptionElements[i].textContent.toLowerCase().trim();
+    }
 
-    // Si aucun tag actif, retourne toutes les recettes
+    // Si aucun tag actif, retourner toutes les recettes
     if (activeOptionTexts.length === 0) {
         return currentResults;
     }
 
-    const filteredRecipes = currentResults.filter(recipe => {
-        const recipeIngredients = recipe.ingredients.map(i => i.ingredient.toLowerCase());
-        const recipeUstensils = recipe.ustensils.map(u => u.toLowerCase());
+    const filteredRecipes = [];
+    // Parcourir toutes les recettes
+    for (let r = 0; r < currentResults.length; r++) {
+        const recipe = currentResults[r];
+
+        // Préparer les ingrédients en minuscules
+        const recipeIngredients = [];
+        for (let i = 0; i < recipe.ingredients.length; i++) {
+            recipeIngredients[recipeIngredients.length] = recipe.ingredients[i].ingredient.toLowerCase();
+        }
+
+        // Préparer les ustensiles en minuscules
+        const recipeUstensils = [];
+        for (let u = 0; u < recipe.ustensils.length; u++) {
+            recipeUstensils[recipeUstensils.length] = recipe.ustensils[u].toLowerCase();
+        }
+
+        // Appareil en minuscules
         const recipeAppliance = recipe.appliance.toLowerCase();
 
-        // La recette doit correspondre à tous les tags actifs
-        return activeOptionTexts.every(tag =>
-            recipeIngredients.includes(tag) ||
-            recipeUstensils.includes(tag) ||
-            recipeAppliance === tag
-        );
-    });
+        // Vérifier que la recette correspond à tous les tags actifs
+        let matchAllTags = true;
+        for (let t = 0; t < activeOptionTexts.length; t++) {
+            const tag = activeOptionTexts[t];
+            let tagMatches = false;
+
+            // Vérifier dans les ingrédients
+            for (let i = 0; i < recipeIngredients.length; i++) {
+                if (recipeIngredients[i] === tag) {
+                    tagMatches = true;
+                    break;
+                }
+            }
+
+            // Vérifier dans les ustensiles si pas trouvé
+            if (!tagMatches) {
+                for (let u = 0; u < recipeUstensils.length; u++) {
+                    if (recipeUstensils[u] === tag) {
+                        tagMatches = true;
+                        break;
+                    }
+                }
+            }
+
+            // Vérifier l’appareil si pas trouvé
+            if (!tagMatches && recipeAppliance === tag) {
+                tagMatches = true;
+            }
+
+            // Si un tag ne correspond pas, la recette est ignorée
+            if (!tagMatches) {
+                matchAllTags = false;
+                break;
+            }
+        }
+
+        // Ajouter la recette si tous les tags correspondent
+        if (matchAllTags) {
+            filteredRecipes[filteredRecipes.length] = recipe;
+        }
+    }
 
     return filteredRecipes;
 }
+
 
