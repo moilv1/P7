@@ -3,85 +3,59 @@ let previousResults = [];
 function filterRecipes(searchValue) {
     const container = document.getElementById('Recette');
     container.innerHTML = '';
-    let filteredRecipes = [];
+
+    // Filtrer les recettes par nom ou par ingrédients
+    const filteredRecipes = recipes.filter(recipe => {
+        const nameMatch = recipe.name.toLowerCase().includes(searchValue);
+        const ingredientMatch = recipe.ingredients.some(ingredient =>
+            ingredient.ingredient.toLowerCase().includes(searchValue)
+        );
+        return nameMatch || ingredientMatch;
+    });
+
+    // Afficher les recettes filtrées
+    filteredRecipes.forEach(recipe => {
+        const recipeTemplate = RecipeTemplate(recipe);
+        const card = recipeTemplate.getRecipeCardDOM();
+        container.appendChild(card);
+    });
+
     previousResults = filteredRecipes;
 
-    for (let i = 0; i < recipes.length; i++) {
-        const recipe = recipes[i];
-        const recipeName = recipe.name.toLowerCase();
-
-        // Boucle pour vérifier le noms des recettes 
-        if (recipeName.includes(searchValue)) {
-            filteredRecipes.push(recipe);
-
-            const recipeTemplate = RecipeTemplate(recipe);
-            const card = recipeTemplate.getRecipeCardDOM();
-            container.appendChild(card);
-            continue;
-        }
-
-        // Boucle pour vérifier les ingredients 
-        for (let j = 0; j < recipe.ingredients.length; j++) {
-            const ingredient = recipe.ingredients[j].ingredient.toLowerCase();
-            if (ingredient.includes(searchValue)) {
-                filteredRecipes.push(recipe);
-
-                const recipeTemplate = RecipeTemplate(recipe);
-                const card = recipeTemplate.getRecipeCardDOM();
-                container.appendChild(card);
-                break;
-            }
-        }
-    }
-    
-
-    // Mettre à jour le nombre de recettes affichées
+    // Mettre à jour le compteur
     const nbrRecettesElement = document.querySelector('.nbr-recettes');
-    const divRecette = document.getElementById('Recette')
-    
-    if (!filteredRecipes.length) {
-        divRecette.innerHTML = `<p class="emptyRecipes">Aucune recette ne contient '${searchValue}', vous pouvez chercher "tarte aux pommes", "tartiflette" par exemple.</p>`;
-    } 
+    if (filteredRecipes.length === 0) {
+        container.innerHTML = `<p class="emptyRecipes">Aucune recette ne contient '${searchValue}', vous pouvez chercher "tarte aux pommes", "tartiflette" par exemple.</p>`;
+    }
     nbrRecettesElement.textContent = filteredRecipes.length === recipes.length
         ? '1500 recettes'
         : `${filteredRecipes.length} recettes`;
-    // Mettre à jour les options des dropdowns
+
+    // Mettre à jour les dropdowns
     updateDropdownOptions(filteredRecipes);
 }
-const searchElements = document.querySelectorAll('#search-bar, #search-btn-bar');
-const searchInput = document.getElementById('search-bar');
 
-// Ajout des events listeners 
+// Gestion de l'input recherche
+const searchInput = document.getElementById('search-bar');
 searchInput.addEventListener('input', () => {
     const value = searchInput.value.toLowerCase();
 
-    // ➤ CAS 1 : Champ complètement vide → TOUT RÉINITIALISER
     if (value.length < 3) {
+        // Réinitialiser l’affichage si moins de 3 caractères
         const container = document.getElementById('Recette');
         container.innerHTML = '';
-
-        for (let i = 0; i < recipes.length; i++) {
-            const recipe = recipes[i];
+        recipes.forEach(recipe => {
             const recipeTemplate = RecipeTemplate(recipe);
             const card = recipeTemplate.getRecipeCardDOM();
             container.appendChild(card);
-        }
+        });
 
-        // Remise du compteur
-        const nbrRecettesElement = document.querySelector('.nbr-recettes');
-        nbrRecettesElement.textContent = '1500 recettes';
-
-        // Mise à jour des dropdowns
+        document.querySelector('.nbr-recettes').textContent = '1500 recettes';
         updateDropdownOptions(recipes);
-
-        // On reset le previousResults
         previousResults = recipes;
-
         return;
     }
 
-
-    // ➤ CAS 3 : 3 lettres ou plus → filtrage normal
     filterRecipes(value);
 });
 

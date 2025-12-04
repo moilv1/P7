@@ -1776,7 +1776,7 @@ const recipes = [
 ]
 
 // Log Git Branch //
-console.log('main');
+console.log('feature/search-option-2');
 
 //  Template Recettes //
 function RecipeTemplate(recipe) {
