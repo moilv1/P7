@@ -22,11 +22,11 @@ dropdowns.forEach(dropdown => {
     })
 })
 
-const allIngredients = Array.from(new Set([].concat(...recipes.map(recipe => recipe.ingredients.map(ingredient => ingredient.ingredient)))));
+const allIngredients = Array.from(new Set([].concat(...recipes.map(recipe => recipe.ingredients.map(ingredient => ingredient.ingredient.toLowerCase())))));
 
-const allAppliances = Array.from(new Set(recipes.map(recipe => recipe.appliance)));
+const allAppliances = Array.from(new Set(recipes.map(recipe => recipe.appliance.toLowerCase())));
 
-const allUstensils = Array.from(new Set([].concat(...recipes.map(recipe => recipe.ustensils))));
+const allUstensils = Array.from(new Set([].concat(...recipes.map(recipe => recipe.ustensils.map(u => u.toLowerCase())))));
 
 
 const ingredientDropdown = document.getElementById('IngrédientsDropDown');

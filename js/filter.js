@@ -1,4 +1,4 @@
-let previousResults = [];
+let previousResults = recipes;
 
 function filterRecipes(searchValue) {
     const container = document.getElementById('Recette');
